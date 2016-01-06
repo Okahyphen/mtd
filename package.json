@@ -1,0 +1,19 @@
+{
+  "name": "mtd",
+  "version": "0.0.1",
+  "description": "MTD",
+  "main": "mtd.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Okahyphen/mtd.git"
+  },
+  "author": "Colin 'Oka' Hall-Coates <yo@oka.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Okahyphen/mtd/issues"
+  },
+  "homepage": "https://github.com/Okahyphen/mtd#readme"
+}
