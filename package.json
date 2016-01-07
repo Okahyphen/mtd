@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Okahyphen/mtd/issues"
   },
-  "homepage": "https://github.com/Okahyphen/mtd#readme"
+  "homepage": "https://github.com/Okahyphen/mtd#readme",
+  "dependencies": {
+    "minimist": "^1.2.0"
+  }
 }
