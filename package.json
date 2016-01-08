@@ -1,7 +1,11 @@
 {
   "name": "mtd",
   "version": "0.0.2",
-  "description": "MTD",
+  "description": "Multi-track drifting for your command line applications",
+  "keywords": [
+    "argv",
+    "cli"
+  ],
   "main": "mtd.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
