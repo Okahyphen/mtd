@@ -26,7 +26,7 @@ var isFunction = function (object) {
 };
 
 var parse = function (block) {
-  var args = /\(\s*([^)]+?)\s*\)/.exec(block.toString());
+  var args = block.length && /\(\s*([^)]+?)\s*\)/.exec(block.toString());
   return args ? args[1].split(/\s*,\s*/) : [];
 };
 
@@ -115,6 +115,6 @@ MTD.prototype.embark = function () {
   this._always.forEach(dispatcher, this);
 };
 
-module.exports = function wrap (options) {
+module.exports = function barrier (options) {
   return new MTD(options);
 };
