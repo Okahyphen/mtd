@@ -10,7 +10,8 @@ function MTD (options) {
 
   this.settings = {
     reruns: true,
-    multi: true
+    multi: true,
+    results: false
   };
 
   this.tracks = {};
@@ -114,7 +115,7 @@ MTD.prototype.after = function (name, requirements, block) {
 MTD.prototype.dispatch = function (track) {
   var
   tracks = this.tracks,
-  settings, options, context, bindings, failures;
+  settings, options, context, bindings, failures, result;
 
   if (tracks.hasOwnProperty(track))
     context = tracks[track];
@@ -136,7 +137,10 @@ MTD.prototype.dispatch = function (track) {
   if (failures) return this.halt(track, failures);
 
   context.departed = true;
-  context.result = context.block.apply(this, bindings);
+  result = context.block.apply(this, bindings);
+
+  if (settings.results)
+    context.result = result;
 };
 
 var dispatcher = function (track) {
