@@ -7,11 +7,29 @@ var ARGS = require('minimist');
 function MTD (options) {
   this.options = ARGS(process.argv.slice(2), options);
   this.argv = this.options._;
+
+  this.settings = {
+    reruns: true,
+    multi: true
+  };
+
   this.tracks = {};
   this.radio = {};
+
+  this._before = [];
   this._default = null;
-  this._always = [];
+  this._after = [];
 }
+
+MTD.prototype.configure = function (conf) {
+  var settings = this.settings;
+
+  for (var key in config)
+    if (config.hasOwnProperty(key) && settings.hasOwnProperty(key))
+      settings[key] = config[key];
+
+  return this;
+};
 
 MTD.prototype.halt = function (track, failures) {
   console.warn('Required option(s) not found for [ %s ]:', track);
@@ -63,17 +81,32 @@ MTD.prototype.default = function (name, requirements, block) {
   return this;
 };
 
-MTD.prototype.always = function (name, requirements, block) {
-  var always = this._always;
+MTD.prototype.before = function (name, requirements, block) {
+  var before = this._before;
 
   if (typeof name !== 'string') {
     block = requirements;
     requirements = name;
-    name = 'MTD_ALWAYS_' + always.length;
+    name = 'MTD_BEFORE_' + before.length;
   }
 
   if (!requirements || this.track(name, requirements, block))
-    always.push(name);
+    before.push(name);
+
+  return this;
+};
+
+MTD.prototype.after = function (name, requirements, block) {
+  var after = this._after;
+
+  if (typeof name !== 'string') {
+    block = requirements;
+    requirements = name;
+    name = 'MTD_BEFORE_' + after.length;
+  }
+
+  if (!requirements || this.track(name, requirements, block))
+    after.push(name);
 
   return this;
 };
@@ -81,11 +114,16 @@ MTD.prototype.always = function (name, requirements, block) {
 MTD.prototype.dispatch = function (track) {
   var
   tracks = this.tracks,
-  options, context, bindings, failures;
+  settings, options, context, bindings, failures;
 
   if (tracks.hasOwnProperty(track))
     context = tracks[track];
   else return console.warn('Track [ %s ] not found.', track);
+
+  settings = this.settings;
+
+  if (context.departed && !settings.reruns)
+    return console.warn('Refusing to rerun [ %s ].', track);
 
   options = this.options;
   bindings = context.requirements.map(function (requirement) {
@@ -97,7 +135,8 @@ MTD.prototype.dispatch = function (track) {
 
   if (failures) return this.halt(track, failures);
 
-  context.block.apply(this, bindings);
+  context.departed = true;
+  context.result = context.block.apply(this, bindings);
 };
 
 var dispatcher = function (track) {
@@ -105,14 +144,23 @@ var dispatcher = function (track) {
 };
 
 MTD.prototype.embark = function () {
-  var def, argv = this.argv;
+  var
+  argv = this.argv,
+  before = this._before,
+  after = this._after,
+  def;
 
-  if (argv.length)
-    argv.forEach(dispatcher, this);
-  else if ((def = this._default))
+  if (before.length)
+    before.forEach(dispatcher, this);
+
+  if (argv.length) {
+    if (this.settings.multi) argv.forEach(dispatcher, this);
+    else this.dispatch(argv[0]);
+  } else if ((def = this._default))
     this.dispatch(def);
 
-  this._always.forEach(dispatcher, this);
+  if (after.length)
+    after.forEach(dispatcher, this);
 };
 
 module.exports = function barrier (options) {
