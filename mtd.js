@@ -2,10 +2,38 @@
 // Colin 'Oka' Hall-Coates, <yo@oka.io>
 // MIT, 2016
 
-var ARGS = require('minimist');
+var
+ARGS = require('minimist'),
+OPTS = function (options) {
+  var descriptions = {},
+      parsed = { alias: {}, default: {}, boolean: [], string: [] },
+      info, desc, alias, type, def;
+
+  for (var option in options) {
+    if (!options.hasOwnProperty(option)) continue;
+
+    info = options[option];
+
+    if ((desc = info[0]))
+      descriptions[option] = desc;
+    if ((alias = info[1]))
+      parsed.alias[option] = alias;
+    if ((type = info[2]) && parsed[type])
+      parsed[type].push(option);
+    if (typeof (def = info[3]) !== 'undefined')
+      parsed.default[option] = def;
+  }
+
+  return {
+    descriptions: descriptions,
+    parsed: parsed,
+    aliases: parsed.alias
+  };
+};
 
 function MTD (options) {
-  this.options = ARGS(process.argv.slice(2), options);
+  this.help = options = OPTS(options);
+  this.options = ARGS(process.argv.slice(2), options.parsed);
   this.argv = this.options._;
 
   this.settings = {
@@ -33,10 +61,15 @@ MTD.prototype.configure = function (conf) {
 };
 
 MTD.prototype.halt = function (track, failures) {
+  var help = this.help;
   console.warn('Required option(s) not found for [ %s ]:', track);
 
   failures.forEach(function (failure) {
-    console.warn('\t%s', failure);
+    var alias = help.aliases[failure],
+        description = help.descriptions[failure] || '';
+
+    if (alias) console.warn('\t--%s, -%s\t%s', failure, alias, description);
+    else console.warn('\t--%s\t\t%s', failure, description);
   });
 };
 
