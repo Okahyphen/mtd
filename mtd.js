@@ -16,7 +16,7 @@ OPTS = function (options) {
 
     if ((desc = info[0]))
       descriptions[option] = desc;
-    if ((alias = info[1]))
+    if ((alias = info[1]) && alias.length === 1)
       parsed.alias[option] = alias;
     if ((type = info[2]) && parsed[type])
       parsed[type].push(option);
@@ -32,7 +32,7 @@ OPTS = function (options) {
 };
 
 function MTD (options) {
-  this.help = options = OPTS(options);
+  this.information = options = OPTS(options);
   this.options = ARGS(process.argv.slice(2), options.parsed);
   this.argv = this.options._;
 
@@ -61,12 +61,15 @@ MTD.prototype.configure = function (conf) {
 };
 
 MTD.prototype.halt = function (track, failures) {
-  var help = this.help;
-  console.warn('Required option(s) not found for [ %s ]:', track);
+  var info = this.information,
+      aliases = info.aliases,
+      descriptions = info.descriptions;
+
+  console.warn('Required option(s) not found for [ %s ] track:', track);
 
   failures.forEach(function (failure) {
-    var alias = help.aliases[failure],
-        description = help.descriptions[failure] || '';
+    var alias = aliases[failure],
+        description = descriptions[failure] || '';
 
     if (alias) console.warn('\t--%s, -%s\t%s', failure, alias, description);
     else console.warn('\t--%s\t\t%s', failure, description);
