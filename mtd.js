@@ -32,8 +32,9 @@ OPTS = function (options) {
 };
 
 function Track (requirements, block) {
-  this.requirements = requirements;
   this.block = block;
+  this.departed = false;
+  this.requirements = requirements;
 }
 
 function MTD (options) {

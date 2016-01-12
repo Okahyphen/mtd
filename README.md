@@ -122,7 +122,105 @@ That is all.
 
 ## Usage & Documentation
 
-Very soon...
+### Requiring
+
+Requiring the module works very much like most `Node` modules do.
+
+```javascript
+var mtd = require('mtd');
+```
+
+`mtd` is now a function (called `barrier` internally) that when invoked returns a new instance of MTD. This acts as a construction wrapper.
+
+### Construction
+
+```javascript
+mtd(options :: Object)
+```
+
+When constructed MTD instances take one argument - an object containing command line options as keys, and arrays as their values. These keys are arbitrary, and this part is optional. Command line options will be parsed regardless of if they exist in this object or not.
+
+The arrays should contain only the following, in order.
+
+- [0] : A description of the option, for error/help messages.
+- [1] : A single character alias for the option.
+- [2] : A forced type to be used when parsed, either `string` or `boolean`.
+- [3] : A default value.
+
+To omit any of the first three elements, set them individually as `null`.
+
+```javascript
+mtd({
+  date: ['a valid date string', 'd', 'string', 'January 1, 1970'],
+  timestamp: [null, 't', null, 516078000000]
+})
+```
+
+### Properties
+
+Instances of MTD contain the following properties:
+
+- `information :: Object` - An object containing the following key-values:
+  - `descriptions :: Object` - A mapping of command line options to their help messages.
+  - `parsed :: Object` - The transformed options object for `minimist` to digest.
+  - `aliases :: Object` - A convenience reference to `information.parsed.alias`.
+- `options :: Object` - The object returned from `minimist`'s parsing of command line arguments and options.
+- `argv :: Array` - A convenience reference to `options._`, the loose command line arguments.
+- `settings :: Object` - An object containing the following key-values:
+  - `multi :: Boolean` - Whether multiple `tracks` can be run from the command line arguments (`options._`). Default `true`.
+  - `reruns :: Boolean` - Whether individual `tracks` can be run multiple times. Default `true`.
+  - `results :: Boolean` - Whether the most recent result of an individual `Track` should be stored in `Track.result`. Default `false`.
+- `tracks :: Object` - An object containing `Track` objects. Each object has the following properties:
+  - `block :: Function` - The execution context to be invoked.
+  - `departed :: Boolean` - Whether or not the `Track` has run at least once.
+  - `requirements :: Array` - An array of strings, corresponding to the command line options.
+  - `result :: Any` - The most recent return value from invoking the `Track.block`. Setting dependent.
+- `_radio :: Object` - An empty object, to be used for data sharing between tracks. See `MTD.prototype.relay`.
+- `_before :: Array` - An array of `track` names to be invoked in order, before any command line argument tracks.
+- `_default :: Null/String` - The default `track` to be invoked if there are no command line argument tracks.
+- `_after :: Array` - An array of `track` names to be invoked in order, after any command line argument tracks.
+
+Generally, none of the properties should be written to directly.
+
+### Methods
+
+MTD has the following prototype methods.
+
+```javascript
+.configure(config :: Object)
+```
+
+```javascript
+.halt(track :: String, failures :: Array)
+```
+
+```javascript
+.radio(key :: String, value :: Any, protect :: Boolean)
+```
+
+```javascript
+.track(name :: String, requirements :: Array, block :: Function)
+```
+
+```javascript
+.default(name :: String, requirements :: Array, block :: Function)
+```
+
+```javascript
+.before(name :: String, requirements :: Array, block :: Function)
+```
+
+```javascript
+.after(name :: String, requirements :: Array, block :: Function)
+```
+
+```javascript
+.dispatch(track :: String)
+```
+
+```javascript
+.embark()
+```
 
 ---
 
