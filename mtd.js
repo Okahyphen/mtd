@@ -31,19 +31,24 @@ OPTS = function (options) {
   };
 };
 
+function Track (requirements, block) {
+  this.requirements = requirements;
+  this.block = block;
+}
+
 function MTD (options) {
   this.information = options = OPTS(options);
   this.options = ARGS(process.argv.slice(2), options.parsed);
   this.argv = this.options._;
 
   this.settings = {
-    reruns: true,
     multi: true,
+    reruns: true,
     results: false
   };
 
   this.tracks = {};
-  this.radio = {};
+  this._radio = {};
 
   this._before = [];
   this._default = null;
@@ -76,6 +81,13 @@ MTD.prototype.halt = function (track, failures) {
   });
 };
 
+MTD.prototype.radio = function (key, value, protect) {
+  var radio = this._radio;
+
+  return (arguments.length > 1 && (!protect || !radio.hasOwnProperty(key))) ?
+    radio[key] = value : radio[key];
+};
+
 var isFunction = function (object) {
   return typeof object === 'function';
 };
@@ -96,10 +108,7 @@ MTD.prototype.track = function (name, requirements, block) {
     block = requirements.pop();
 
   if (jump || isFunction(block))
-    this.tracks[name] = {
-      requirements: requirements,
-      block: block
-    };
+    this.tracks[name] = new Track(requirements, block);
   else console.warn('No block given for [ %s ].', name);
 
   return this;
