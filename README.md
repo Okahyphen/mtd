@@ -198,7 +198,7 @@ This method takes an object where the values of any keys also found in the `sett
 
 - Chainable: _this method returns the instance._
 
-###### Example
+##### Example
 
 ```javascript
 .configure({
@@ -276,7 +276,7 @@ Registers `Track` names to always be invoked, in order, _before_ any command lin
 
 This method follows the same rules as `MTD.prototype.default`, but pushes the name of the track into the `_before` array instance property.
 
-If `name` is not provided, a name is generated as `MTD_BEFORE_N` - where `N` is the current length of the `_before` array.
+If `name` is not provided, a name is generated as `'MTD_BEFORE_N'` - where `N` is the current length of the `_before` array.
 
 - Chainable: _this method returns the instance._
 
@@ -285,7 +285,7 @@ If `name` is not provided, a name is generated as `MTD_BEFORE_N` - where `N` is 
 ```javascript
 .before('first') // assumes a 'first' Track exists, or will exist
 .before(function (alpha, beta) {
-  // create a new Track called
+  // create a new Track called 'MTD_BEFORE_0'
 })
 ```
 
@@ -297,9 +297,18 @@ If `name` is not provided, a name is generated as `MTD_BEFORE_N` - where `N` is 
 
 Works identically to `MTD.prototype.before`, but registers `Track` names to always be invoked, in order, _after_ any command line argument or `_default` tracks.
 
-Pushes `Track` names into the `_after` array instance property.
+Pushes `Track` names into the `_after` array instance property. Generated names take the form `'MTD_AFTER_N'`.
 
 - Chainable: _this method returns the instance._
+
+##### Example
+
+```javascript
+.after('last') // assumes a 'last' Track exists, or will exist
+.after(function (alpha, beta) {
+  // create a new Track called 'MTD_AFTER_0'
+})
+```
 
 #### MTD.prototype.dispatch
 

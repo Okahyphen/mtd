@@ -56,7 +56,7 @@ function MTD (options) {
   this._after = [];
 }
 
-MTD.prototype.configure = function (conf) {
+MTD.prototype.configure = function (config) {
   var settings = this.settings;
 
   for (var key in config)
