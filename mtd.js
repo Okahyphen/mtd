@@ -66,22 +66,6 @@ MTD.prototype.configure = function (conf) {
   return this;
 };
 
-MTD.prototype.halt = function (track, failures) {
-  var info = this.information,
-      aliases = info.aliases,
-      descriptions = info.descriptions;
-
-  console.warn('Required option(s) not found for [ %s ] track:', track);
-
-  failures.forEach(function (failure) {
-    var alias = aliases[failure],
-        description = descriptions[failure] || '';
-
-    if (alias) console.warn('\t--%s, -%s\t%s', failure, alias, description);
-    else console.warn('\t--%s\t\t%s', failure, description);
-  });
-};
-
 MTD.prototype.radio = function (key, value, protect) {
   var radio = this._radio;
 
@@ -158,6 +142,22 @@ MTD.prototype.after = function (name, requirements, block) {
   return this;
 };
 
+var halt = function (instance, track, failures) {
+  var info = instance.information,
+      aliases = info.aliases,
+      descriptions = info.descriptions;
+
+  console.warn('Required option(s) not found for [ %s ] track:', track);
+
+  failures.forEach(function (failure) {
+    var alias = aliases[failure],
+        description = descriptions[failure] || '';
+
+    if (alias) console.warn('\t--%s, -%s\t%s', failure, alias, description);
+    else console.warn('\t--%s\t\t%s', failure, description);
+  });
+};
+
 MTD.prototype.dispatch = function (track) {
   var
   tracks = this.tracks,
@@ -180,7 +180,7 @@ MTD.prototype.dispatch = function (track) {
     else failures = [requirement];
   });
 
-  if (failures) return this.halt(track, failures);
+  if (failures) return halt(this, track, failures);
 
   context.departed = true;
   result = context.block.apply(this, bindings);
