@@ -12,12 +12,31 @@
 
 Just-in-time dependency injection of command line options for executable contexts in Node.js.
 
+Curious? All aboard!
+
+1. <a href="#whatis">What is MTD?</a>
+1. <a href="#install">Installation</a>
+1. <a href="#info">Example & Basic Info</a>
+  - <a href="#missing">Missing links</a>
+  - <a href="#order">Execution Order & Multi-tracks</a>
+1. <a href="#usage">Usage & Documentation</a>
+  - <a href="#requiring">Requiring</a>
+  - <a href="#construction">Construction</a>
+  - <a href="#properties">Properties</a>
+  - <a href="#methods">Methods</a>
+  - <a href="#context">Track context</a>
+  - <a href="#parsing">Parsed dependencies</a>
+1. <a href="#extras">Extras</a>
+1. <a href="#license">License</a>
+
+<a name="whatis" />
 ## What is MTD?
 
 More formally, MTD stands for _managing terminal dependencies_ - but that's no fun.
 
 MTD is a lightweight module that wraps around [minimist][minimist], providing an intelligent way to define _tracks_ that your command line application might travel down, and allowing you to specify the command line options that each track depends upon. _Tracks_ are essentially different execution contexts that your singular command line application might want to run, and are defined as the loose arguments provided to a command line application.
 
+<a name="install" />
 ## Install
 
 Using [npm](https://www.npmjs.com/), of course.
@@ -26,7 +45,8 @@ Using [npm](https://www.npmjs.com/), of course.
 $ npm install mtd
 ```
 
-## Example
+<a name="info" />
+## Example & Basic Info
 
 Here's an example of a simple command line application that processes dates, using MTD.
 
@@ -84,6 +104,7 @@ Minute(s):	40
 Second(s):	53
 ```
 
+<a name="missing" />
 ### Missing links
 
 We can see that both `tracks` depend on the command line option `date`, as shown in each function's argument list. What happens when we fail to provide that option?
@@ -95,11 +116,12 @@ Required option(s) not found for [ until ] track:
 
 MTD lets us know that we've failed to provide a necessary command line option, and which track required it. If we fail to provide more than one option, they are all shown.
 
+<a name="order">
 ### Execution Order & Multi-tracks
 
 MTD is synchronous.
 
-Tracks are executed in the order that they are passed to the command line application.
+Tracks are executed in the order that they are passed to the command line application. There are configuration options to disable multiple tracks, and the rerunning of individual tracks.
 
 If we ran our previous example as `node date-time since until --date "Jan 1, 2000"` we would see something like
 
@@ -116,14 +138,10 @@ Second(s):	-33
 
 in our terminal.
 
-### Parsed dependencies
-
-To omit dependency lists, and rely on parsing function arguments, functions should conform to ES5 style arguments. No fancy ES6 allowed.
-
-That is all.
-
+<a name="usage" />
 ## Usage & Documentation
 
+<a name="requiring">
 ### Requiring
 
 Requiring the module works very much like most `Node` modules do.
@@ -134,6 +152,7 @@ var mtd = require('mtd');
 
 With the previous, `mtd` is now a function (called `barrier` internally) that, when invoked, returns a new instance of `MTD`. This acts as a construction wrapper.
 
+<a name="construction">
 ### Construction
 
 ```javascript
@@ -158,6 +177,7 @@ mtd({
 })
 ```
 
+<a name="properties">
 ### Properties
 
 Instances of MTD contain the following properties:
@@ -184,6 +204,7 @@ Instances of MTD contain the following properties:
 
 Generally, none of the properties should be written to directly.
 
+<a name="methods">
 ### Methods
 
 MTD has the following prototype methods.
@@ -332,15 +353,66 @@ It can be used to invoke a `Track` manually.
 .radio(key :: String, value :: Any, protect :: Boolean)
 ```
 
+This is a getter/setter method for ease-of-use interaction with the `_radio` instance property. Its functionality is twofold:
+
+- If _only_ a `key` is provided, this method acts as a getter, returning the value associated with the given string.
+
+- If a `key` and a `value` are provided, this method acts as a setter, associating the given value with the given key, and returning the value.
+
+  - If `protect` is provided as a truthy value, `value` will _only_ be associated with `key` if the given `key` does not already have an associated value.
+
+This is useful for providing values or instances of objects that multiple tracks may wish to share.
+
+##### Example
+
+In this example, we have two `tracks` where we know we will want an instance of `MySharedObject`. We can set up a `before` track, that checks if our command line application has been passed a `key` option. With that information, and a uniform designation of the `key` option, we can set up our tracks so that if multiple `key` dependents are invoked we already have a shared object, and don't need to construct additional instances.
+
+```javascript
+.before(function () {
+  var key = this.options.key;
+  if (key) this.radio('instance', new MySharedObject(key));
+})
+.track('foo', function (key, alpha) {
+  this.radio('instance').doSomething(alpha);
+})
+.track('bar', function (key, beta) {
+  this.radio('instance').doSomethingElse(beta);
+})
+```
+
 #### MTD.prototype.embark
 
 ```javascript
 .embark()
 ```
 
+This is the runner method, which handles dispatching `tracks` found in `_before`, `argv` or `_default`, and `_after`. It should always be called last. If you forget to include this, your application likely won't do anything.
+
+<a name="context">
 ### Track context
 
-When invoked, `tracks` have their contextual `this` set to the instance of `MTD`.
+When invoked, `tracks` have their contextual `this` set to the controlling instance of `MTD`.
+
+This allows for ease of access to non-dependent command line options found in the `.options` property, the `.radio` method, and any other instance properties or prototype methods your `Track` might want to use.
+
+As such, `Track` _blocks_ should not be object methods, or a function where the contextual `this` would need to be bound elsewhere in order for the function to operate properly.
+
+<a name="parsing">
+### Parsed dependencies
+
+To omit `Track` dependency lists, and rely on parsing function arguments, functions should conform to ES5 style arguments. No fancy ES6 allowed.
+
+<a name="extras" />
+## Extras
+
+- [`mtd-help`](https://github.com/Okahyphen/mtd-help) - A helpful `Track`.
+
+<a name="license" />
+## License
+
+MTD is MIT!
+
+Read it [here][license].
 
 ---
 
@@ -353,3 +425,4 @@ Enjoy!
 [npm-downloads]: http://img.shields.io/npm/dm/mtd.svg
 
 [minimist]: https://www.npmjs.com/package/minimist
+[license]: https://github.com/Okahyphen/mtd/blob/master/LICENSE
