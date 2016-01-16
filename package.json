@@ -1,6 +1,6 @@
 {
   "name": "mtd",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Multi-track drifting for your command line applications",
   "keywords": [
     "argv",
