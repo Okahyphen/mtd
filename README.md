@@ -29,14 +29,14 @@ Curious? All aboard!
 1. <a href="#extras">Extras</a>
 1. <a href="#license">License</a>
 
-<a name="whatis" />
+<a name="whatis"></a>
 ## What is MTD?
 
 More formally, MTD stands for _managing terminal dependencies_ - but that's no fun.
 
 MTD is a lightweight module that wraps around [minimist][minimist], providing an intelligent way to define _tracks_ that your command line application might travel down, and allowing you to specify the command line options that each track depends upon. _Tracks_ are essentially different execution contexts that your singular command line application might want to run, and are defined as the loose arguments provided to a command line application.
 
-<a name="install" />
+<a name="install"></a>
 ## Install
 
 Using [npm](https://www.npmjs.com/), of course.
@@ -45,7 +45,7 @@ Using [npm](https://www.npmjs.com/), of course.
 $ npm install mtd
 ```
 
-<a name="info" />
+<a name="info"></a>
 ## Example & Basic Info
 
 Here's an example of a simple command line application that processes dates, using MTD.
@@ -104,7 +104,7 @@ Minute(s):	40
 Second(s):	53
 ```
 
-<a name="missing" />
+<a name="missing"></a>
 ### Missing links
 
 We can see that both `tracks` depend on the command line option `date`, as shown in each function's argument list. What happens when we fail to provide that option?
@@ -116,7 +116,7 @@ Required option(s) not found for [ until ] track:
 
 MTD lets us know that we've failed to provide a necessary command line option, and which track required it. If we fail to provide more than one option, they are all shown.
 
-<a name="order">
+<a name="order"></a>
 ### Execution Order & Multi-tracks
 
 MTD is synchronous.
@@ -138,10 +138,10 @@ Second(s):	-33
 
 in our terminal.
 
-<a name="usage" />
+<a name="usage"></a>
 ## Usage & Documentation
 
-<a name="requiring">
+<a name="requiring"></a>
 ### Requiring
 
 Requiring the module works very much like most `Node` modules do.
@@ -152,7 +152,7 @@ var mtd = require('mtd');
 
 With the previous, `mtd` is now a function (called `barrier` internally) that, when invoked, returns a new instance of `MTD`. This acts as a construction wrapper.
 
-<a name="construction">
+<a name="construction"></a>
 ### Construction
 
 ```javascript
@@ -177,7 +177,7 @@ mtd({
 })
 ```
 
-<a name="properties">
+<a name="properties"></a>
 ### Properties
 
 Instances of MTD contain the following properties:
@@ -204,7 +204,7 @@ Instances of MTD contain the following properties:
 
 Generally, none of the properties should be written to directly.
 
-<a name="methods">
+<a name="methods"></a>
 ### Methods
 
 MTD has the following prototype methods.
@@ -388,7 +388,7 @@ In this example, we have two `tracks` where we know we will want an instance of 
 
 This is the runner method, which handles dispatching `tracks` found in `_before`, `argv` or `_default`, and `_after`. It should always be called last. If you forget to include this, your application likely won't do anything.
 
-<a name="context">
+<a name="context"></a>
 ### Track context
 
 When invoked, `tracks` have their contextual `this` set to the controlling instance of `MTD`.
@@ -397,17 +397,17 @@ This allows for ease of access to non-dependent command line options found in th
 
 As such, `Track` _blocks_ should not be object methods, or a function where the contextual `this` would need to be bound elsewhere in order for the function to operate properly.
 
-<a name="parsing">
+<a name="parsing"></a>
 ### Parsed dependencies
 
 To omit `Track` dependency lists, and rely on parsing function arguments, functions should conform to ES5 style arguments. No fancy ES6 allowed.
 
-<a name="extras" />
+<a name="extras"></a>
 ## Extras
 
 - [`mtd-help`](https://github.com/Okahyphen/mtd-help) - A helpful `Track`.
 
-<a name="license" />
+<a name="license"></a>
 ## License
 
 MTD is MIT!
