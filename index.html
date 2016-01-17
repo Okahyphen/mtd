@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>mtd by Okahyphen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">mtd</h1>
+      <h2 class="project-tagline">Just-in-time dependency injection of command line options for executable contexts in Node.js</h2>
+      <a href="https://github.com/Okahyphen/mtd" class="btn">View on GitHub</a>
+      <a href="https://github.com/Okahyphen/mtd/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/Okahyphen/mtd/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p align="center">
+  <a href="https://www.npmjs.com/package/mtd">
+    <img src="http://i.imgur.com/t4OEBmj.gif">
+  </a>
+</p>
+
+<h1>
+<a id="mtd" class="anchor" href="#mtd" aria-hidden="true"><span class="octicon octicon-link"></span></a>MTD</h1>
+
+<p><strong>Multi-track drifting for your command line applications</strong></p>
+
+<p><a href="https://www.npmjs.com/package/mtd"><img src="http://img.shields.io/npm/v/mtd.svg" alt="NPM version"></a> <a href="https://www.npmjs.com/package/mtd"><img src="http://img.shields.io/npm/dm/mtd.svg" alt="Downloads"></a></p>
+
+<p>Just-in-time dependency injection of command line options for executable contexts in Node.js.</p>
+
+<p>Curious? All aboard!</p>
+
+<ol>
+<li><a href="#whatis">What is MTD?</a></li>
+<li><a href="#install">Installation</a></li>
+<li>
+<a href="#info">Example &amp; Basic Info</a>
+
+<ul>
+<li><a href="#missing">Missing links</a></li>
+<li><a href="#order">Execution Order &amp; Multi-tracks</a></li>
+</ul>
+</li>
+<li>
+<a href="#usage">Usage &amp; Documentation</a>
+
+<ul>
+<li><a href="#requiring">Requiring</a></li>
+<li><a href="#construction">Construction</a></li>
+<li><a href="#properties">Properties</a></li>
+<li><a href="#methods">Methods</a></li>
+<li><a href="#context">Track context</a></li>
+<li><a href="#parsing">Parsed dependencies</a></li>
+</ul>
+</li>
+<li><a href="#extras">Extras</a></li>
+<li><a href="#license">License</a></li>
+</ol>
+
+<p><a name="whatis"></a></p>
+
+<h2>
+<a id="what-is-mtd" class="anchor" href="#what-is-mtd" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is MTD?</h2>
+
+<p>More formally, MTD stands for <em>managing terminal dependencies</em> - but that's no fun.</p>
+
+<p>MTD is a lightweight module that wraps around <a href="https://www.npmjs.com/package/minimist">minimist</a>, providing an intelligent way to define <em>tracks</em> that your command line application might travel down, and allowing you to specify the command line options that each track depends upon. <em>Tracks</em> are essentially different execution contexts that your singular command line application might want to run, and are defined as the loose arguments provided to a command line application.</p>
+
+<p><a name="install"></a></p>
+
+<h2>
+<a id="install" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install</h2>
+
+<p>Using <a href="https://www.npmjs.com/">npm</a>, of course.</p>
+
+<div class="highlight highlight-source-shell"><pre>$ npm install mtd</pre></div>
+
+<p><a name="info"></a></p>
+
+<h2>
+<a id="example--basic-info" class="anchor" href="#example--basic-info" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example &amp; Basic Info</h2>
+
+<p>Here's an example of a simple command line application that processes dates, using MTD.</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// date-time.js</span>
+<span class="pl-k">var</span> station <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>mtd<span class="pl-pds">'</span></span>);
+
+<span class="pl-k">function</span> <span class="pl-en">HMS</span> (<span class="pl-smi">seconds</span>) {
+  <span class="pl-v">this</span>.<span class="pl-smi">hours</span> <span class="pl-k">=</span> <span class="pl-k">~~</span>(seconds <span class="pl-k">/</span> <span class="pl-c1">3600</span>);
+  <span class="pl-v">this</span>.<span class="pl-smi">minutes</span> <span class="pl-k">=</span> <span class="pl-k">~~</span>((seconds <span class="pl-k">%</span> <span class="pl-c1">3600</span>) <span class="pl-k">/</span> <span class="pl-c1">60</span>);
+  <span class="pl-v">this</span>.<span class="pl-smi">seconds</span> <span class="pl-k">=</span> <span class="pl-k">~~</span>(seconds <span class="pl-k">%</span> <span class="pl-c1">60</span>);
+}
+
+<span class="pl-c1">HMS</span>.<span class="pl-c1">prototype</span>.<span class="pl-en">pretty</span> <span class="pl-k">=</span> <span class="pl-k">function</span> () {
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-s"><span class="pl-pds">'</span>Hour(s):<span class="pl-cce">\t</span>%s<span class="pl-cce">\n</span>Minute(s):<span class="pl-cce">\t</span>%s<span class="pl-cce">\n</span>Second(s):<span class="pl-cce">\t</span>%s<span class="pl-pds">'</span></span>,
+    <span class="pl-v">this</span>.<span class="pl-smi">hours</span>, <span class="pl-v">this</span>.<span class="pl-smi">minutes</span>, <span class="pl-v">this</span>.<span class="pl-smi">seconds</span>);
+};
+
+<span class="pl-en">station</span>({
+  date<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>a valid date string<span class="pl-pds">'</span></span>]
+})
+
+.<span class="pl-en">track</span>(<span class="pl-s"><span class="pl-pds">'</span>until<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">date</span>) {
+  <span class="pl-k">var</span> seconds <span class="pl-k">=</span> <span class="pl-k">~~</span>((<span class="pl-smi">Date</span>.<span class="pl-c1">parse</span>(date) <span class="pl-k">-</span> <span class="pl-smi">Date</span>.<span class="pl-en">now</span>()) <span class="pl-k">/</span> <span class="pl-c1">1000</span>);
+
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-s"><span class="pl-pds">'</span>Time until %s<span class="pl-pds">'</span></span>, date);
+  <span class="pl-k">new</span> <span class="pl-en">HMS</span>(seconds).<span class="pl-en">pretty</span>();
+})
+
+.<span class="pl-en">track</span>(<span class="pl-s"><span class="pl-pds">'</span>since<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">date</span>) {
+  <span class="pl-k">var</span> seconds <span class="pl-k">=</span> <span class="pl-k">~~</span>((<span class="pl-smi">Date</span>.<span class="pl-en">now</span>() <span class="pl-k">-</span> <span class="pl-smi">Date</span>.<span class="pl-c1">parse</span>(date)) <span class="pl-k">/</span> <span class="pl-c1">1000</span>);
+
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-s"><span class="pl-pds">'</span>Time since %s<span class="pl-pds">'</span></span>, date);
+  <span class="pl-k">new</span> <span class="pl-en">HMS</span>(seconds).<span class="pl-en">pretty</span>();
+})
+
+.<span class="pl-en">embark</span>();</pre></div>
+
+<p>With this basic example we can now test out our command line application as <code>node date-time until --date "November 11, 2020"</code> and something along the lines of</p>
+
+<pre><code>Time until November 11, 2020
+Hour(s):    42449
+Minute(s):  22
+Second(s):  51
+</code></pre>
+
+<p>will be printed to our terminal. Now the same application could be run as <code>node date-time since --date "November 11, 1951"</code> and we'd see</p>
+
+<pre><code>Time since November 11, 1951
+Hour(s):    562422
+Minute(s):  40
+Second(s):  53
+</code></pre>
+
+<p><a name="missing"></a></p>
+
+<h3>
+<a id="missing-links" class="anchor" href="#missing-links" aria-hidden="true"><span class="octicon octicon-link"></span></a>Missing links</h3>
+
+<p>We can see that both <code>tracks</code> depend on the command line option <code>date</code>, as shown in each function's argument list. What happens when we fail to provide that option?</p>
+
+<pre><code>Required option(s) not found for [ until ] track:
+  --date        a valid date string
+</code></pre>
+
+<p>MTD lets us know that we've failed to provide a necessary command line option, and which track required it. If we fail to provide more than one option, they are all shown.</p>
+
+<p><a name="order"></a></p>
+
+<h3>
+<a id="execution-order--multi-tracks" class="anchor" href="#execution-order--multi-tracks" aria-hidden="true"><span class="octicon octicon-link"></span></a>Execution Order &amp; Multi-tracks</h3>
+
+<p>MTD is synchronous.</p>
+
+<p>Tracks are executed in the order that they are passed to the command line application. There are configuration options to disable multiple tracks, and the rerunning of individual tracks.</p>
+
+<p>If we ran our previous example as <code>node date-time since until --date "Jan 1, 2000"</code> we would see something like</p>
+
+<pre><code>Time since Jan 1, 2000
+Hour(s):    140430
+Minute(s):  56
+Second(s):  33
+Time until Jan 1, 2000
+Hour(s):    -140430
+Minute(s):  -56
+Second(s):  -33
+</code></pre>
+
+<p>in our terminal.</p>
+
+<p><a name="usage"></a></p>
+
+<h2>
+<a id="usage--documentation" class="anchor" href="#usage--documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage &amp; Documentation</h2>
+
+<p><a name="requiring"></a></p>
+
+<h3>
+<a id="requiring" class="anchor" href="#requiring" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requiring</h3>
+
+<p>Requiring the module works very much like most <code>Node</code> modules do.</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> mtd <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>mtd<span class="pl-pds">'</span></span>);</pre></div>
+
+<p>With the previous, <code>mtd</code> is now a function (called <code>barrier</code> internally) that, when invoked, returns a new instance of <code>MTD</code>. This acts as a construction wrapper.</p>
+
+<p><a name="construction"></a></p>
+
+<h3>
+<a id="construction" class="anchor" href="#construction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Construction</h3>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-en">mtd</span>(options <span class="pl-k">::</span> <span class="pl-c1">Object</span>)</pre></div>
+
+<p>When constructed, <code>MTD</code> instances take one argument - an object containing command line options as keys, and arrays as their values. These keys are arbitrary, and this object is optional. Command line options will be parsed regardless of if they exist in this object or not.</p>
+
+<p>The arrays should contain only the following, in order.</p>
+
+<ul>
+<li>[0] : A description of the option, for error/help messages.</li>
+<li>[1] : A single character alias for the option.</li>
+<li>[2] : A forced type to be used when parsed, either <code>string</code> or <code>boolean</code>.</li>
+<li>[3] : A default value.</li>
+</ul>
+
+<p>To omit any of the first three elements, set them individually as <code>null</code>.</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-en">mtd</span>({
+  date<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>a valid date string<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>d<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>string<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>January 1, 1970<span class="pl-pds">'</span></span>],
+  timestamp<span class="pl-k">:</span> [<span class="pl-c1">null</span>, <span class="pl-s"><span class="pl-pds">'</span>t<span class="pl-pds">'</span></span>, <span class="pl-c1">null</span>, <span class="pl-c1">516078000000</span>]
+})</pre></div>
+
+<p><a name="properties"></a></p>
+
+<h3>
+<a id="properties" class="anchor" href="#properties" aria-hidden="true"><span class="octicon octicon-link"></span></a>Properties</h3>
+
+<p>Instances of MTD contain the following properties:</p>
+
+<ul>
+<li>
+<code>information :: Object</code> - An object containing the following key-values:
+
+<ul>
+<li>
+<code>descriptions :: Object</code> - A mapping of command line options to their help messages.</li>
+<li>
+<code>parsed :: Object</code> - The transformed options object for <code>minimist</code> to digest.</li>
+<li>
+<code>aliases :: Object</code> - A convenience reference to <code>information.parsed.alias</code>.</li>
+</ul>
+</li>
+<li>
+<code>options :: Object</code> - The object returned from <code>minimist</code>'s parsing of command line arguments and options.</li>
+<li>
+<code>argv :: Array</code> - A convenience reference to <code>options._</code>, the loose command line arguments.</li>
+<li>
+<code>settings :: Object</code> - An object containing the following key-values:
+
+<ul>
+<li>
+<code>multi :: Boolean</code> - Whether multiple <code>tracks</code> can be run from the command line arguments (<code>options._</code>). Default <code>true</code>.</li>
+<li>
+<code>reruns :: Boolean</code> - Whether individual <code>tracks</code> can be run multiple times. Default <code>true</code>.</li>
+<li>
+<code>results :: Boolean</code> - Whether the most recent result of an individual <code>Track</code> should be stored in <code>Track.result</code>. Default <code>false</code>.</li>
+</ul>
+</li>
+<li>
+<code>tracks :: Object</code> - An object containing <code>Track</code> objects. Each object has the following properties:
+
+<ul>
+<li>
+<code>block :: Function</code> - The execution context to be invoked.</li>
+<li>
+<code>departed :: Boolean</code> - Whether or not the <code>Track</code> has run at least once.</li>
+<li>
+<code>requirements :: Array</code> - An array of strings, corresponding to the command line options.</li>
+<li>
+<code>result :: Any</code> - The most recent return value from invoking the <code>Track.block</code>. Setting dependent.</li>
+</ul>
+</li>
+<li>
+<code>_radio :: Object</code> - An empty object, to be used for data sharing between tracks. See <code>MTD.prototype.radio</code>.</li>
+<li>
+<code>_before :: Array</code> - An array of <code>track</code> string names to be invoked in order, before any command line argument tracks.</li>
+<li>
+<code>_default :: Null/String</code> - The default <code>track</code> to be invoked if there are no command line argument tracks.</li>
+<li>
+<code>_after :: Array</code> - An array of <code>track</code> string names to be invoked in order, after any command line argument tracks.</li>
+</ul>
+
+<p>Generally, none of the properties should be written to directly.</p>
+
+<p><a name="methods"></a></p>
+
+<h3>
+<a id="methods" class="anchor" href="#methods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Methods</h3>
+
+<p>MTD has the following prototype methods.</p>
+
+<h4>
+<a id="mtdprototypeconfigure" class="anchor" href="#mtdprototypeconfigure" aria-hidden="true"><span class="octicon octicon-link"></span></a>MTD.prototype.configure</h4>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">configure</span>(config <span class="pl-k">::</span> <span class="pl-c1">Object</span>)</pre></div>
+
+<p>This method takes an object where the values of any keys also found in the <code>settings</code> object property of the <code>MTD</code> instance will be overwritten with the values from this provided object.</p>
+
+<ul>
+<li>Chainable: <em>this method returns the instance.</em>
+</li>
+</ul>
+
+<h5>
+<a id="example" class="anchor" href="#example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h5>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">configure</span>({
+  reruns<span class="pl-k">:</span> <span class="pl-c1">false</span>,
+  results<span class="pl-k">:</span> <span class="pl-c1">true</span>
+})</pre></div>
+
+<h4>
+<a id="mtdprototypetrack" class="anchor" href="#mtdprototypetrack" aria-hidden="true"><span class="octicon octicon-link"></span></a>MTD.prototype.track</h4>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">track</span>(name <span class="pl-k">::</span> <span class="pl-c1">String</span>, requirements <span class="pl-k">::</span> <span class="pl-c1">Array</span>, block <span class="pl-k">::</span> <span class="pl-c1">Function</span>)</pre></div>
+
+<p>This method creates <code>Track</code> objects, stored in the <code>tracks</code> instance property. There are three valid ways to pass arguments to this method, but a string <code>name</code> is always required as the first argument. All three styles can be seen in the example below.</p>
+
+<ul>
+<li>Unique Input: <em>No two <code>Track</code> objects should be associated with the same string <code>name</code></em>.</li>
+<li>Chainable: <em>this method returns the instance.</em>
+</li>
+</ul>
+
+<h5>
+<a id="example-1" class="anchor" href="#example-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h5>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">track</span>(<span class="pl-s"><span class="pl-pds">'</span>up<span class="pl-pds">'</span></span>, [<span class="pl-s"><span class="pl-pds">'</span>one<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>two<span class="pl-pds">'</span></span>], <span class="pl-k">function</span> (<span class="pl-smi">one</span>, <span class="pl-smi">two</span>) {
+  <span class="pl-c">// the standard argument format.</span>
+})
+.<span class="pl-en">track</span>(<span class="pl-s"><span class="pl-pds">'</span>down<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">one</span>, <span class="pl-smi">two</span>) {
+  <span class="pl-c">// with this style, a requirements array is built from parsing the source code of the given block.</span>
+  <span class="pl-c">// this style should be avoided if you need command line options that are not valid JavaScript identifiers.</span>
+})
+.<span class="pl-en">track</span>(<span class="pl-s"><span class="pl-pds">'</span>left<span class="pl-pds">'</span></span>, [<span class="pl-s"><span class="pl-pds">'</span>one<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>two<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">one</span>, <span class="pl-smi">two</span>) {
+  <span class="pl-c">// with this style, the block argument is the last element of the requirements array.</span>
+}])</pre></div>
+
+<h4>
+<a id="mtdprototypedefault" class="anchor" href="#mtdprototypedefault" aria-hidden="true"><span class="octicon octicon-link"></span></a>MTD.prototype.default</h4>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">default</span>(name <span class="pl-k">::</span> <span class="pl-c1">String</span>, requirements <span class="pl-k">::</span> <span class="pl-c1">Array</span>, block <span class="pl-k">::</span> <span class="pl-c1">Function</span>)</pre></div>
+
+<p>Sets the default <code>Track</code> to be invoked in the event that <em>no</em> <code>tracks</code> are specified in the command line arguments. There can only be <strong>one</strong> default <code>Track</code> at a given time.</p>
+
+<p>This method takes arguments in a similar way to <code>MTD.prototype.track</code>, since it calls <code>.track</code> internally, but with two exceptions:</p>
+
+<ul>
+<li><p>If <em>only</em> a string <code>name</code> is provided, it is assumed an associated <code>Track</code> exists, or will soon exist, in the <code>tracks</code> instance property. <code>.track</code> is not invoked.</p></li>
+<li><p>If no <code>name</code> is provided, a default <code>track</code> name of <code>'MTD_DEFAULT'</code> is provided with the call to <code>.track</code>.</p></li>
+</ul>
+
+<p>In any event, the <code>_default</code> instance property is set to whatever <code>name</code> is decided upon.</p>
+
+<ul>
+<li>Chainable: <em>this method returns the instance.</em>
+</li>
+</ul>
+
+<h4>
+<a id="example-2" class="anchor" href="#example-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h4>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">default</span>(<span class="pl-s"><span class="pl-pds">'</span>yo<span class="pl-pds">'</span></span>) <span class="pl-c">// assumes a 'yo' Track exists, or will exist</span>
+.<span class="pl-en">default</span>(<span class="pl-s"><span class="pl-pds">'</span>yo<span class="pl-pds">'</span></span>, [<span class="pl-s"><span class="pl-pds">'</span>one<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>two<span class="pl-pds">'</span></span>], <span class="pl-k">function</span> (<span class="pl-smi">one</span>, <span class="pl-smi">two</span>) {
+  <span class="pl-c">// invokes MTD.prototype.track, creating or overriding a Track named 'yo'</span>
+})
+.<span class="pl-en">default</span>([<span class="pl-s"><span class="pl-pds">'</span>one<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>two<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">one</span>, <span class="pl-smi">two</span>) {
+  <span class="pl-c">// same as above, but passes 'MTD_DEFAULT' as the name argument to MTD.prototype.track</span>
+}])
+.<span class="pl-en">default</span>(<span class="pl-k">function</span> (<span class="pl-smi">one</span>, <span class="pl-smi">two</span>) {
+  <span class="pl-c">// same as above, MTD.prototype.track parses block argument requirements</span>
+})</pre></div>
+
+<h4>
+<a id="mtdprototypebefore" class="anchor" href="#mtdprototypebefore" aria-hidden="true"><span class="octicon octicon-link"></span></a>MTD.prototype.before</h4>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">before</span>(name <span class="pl-k">::</span> <span class="pl-c1">String</span>, requirements <span class="pl-k">::</span> <span class="pl-c1">Array</span>, block <span class="pl-k">::</span> <span class="pl-c1">Function</span>)</pre></div>
+
+<p>Registers <code>Track</code> names to always be invoked, in order, <em>before</em> any command line argument or <code>_default</code> tracks.</p>
+
+<p>This method follows the same rules as <code>MTD.prototype.default</code>, but pushes the name of the track into the <code>_before</code> array instance property.</p>
+
+<p>If <code>name</code> is not provided, a name is generated as <code>'MTD_BEFORE_N'</code> - where <code>N</code> is the current length of the <code>_before</code> array.</p>
+
+<ul>
+<li>Chainable: <em>this method returns the instance.</em>
+</li>
+</ul>
+
+<h5>
+<a id="example-3" class="anchor" href="#example-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h5>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">before</span>(<span class="pl-s"><span class="pl-pds">'</span>first<span class="pl-pds">'</span></span>) <span class="pl-c">// assumes a 'first' Track exists, or will exist</span>
+.<span class="pl-en">before</span>(<span class="pl-k">function</span> (<span class="pl-smi">alpha</span>, <span class="pl-smi">beta</span>) {
+  <span class="pl-c">// create a new Track called 'MTD_BEFORE_0'</span>
+})</pre></div>
+
+<h4>
+<a id="mtdprototypeafter" class="anchor" href="#mtdprototypeafter" aria-hidden="true"><span class="octicon octicon-link"></span></a>MTD.prototype.after</h4>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">after</span>(name <span class="pl-k">::</span> <span class="pl-c1">String</span>, requirements <span class="pl-k">::</span> <span class="pl-c1">Array</span>, block <span class="pl-k">::</span> <span class="pl-c1">Function</span>)</pre></div>
+
+<p>Works identically to <code>MTD.prototype.before</code>, but registers <code>Track</code> names to always be invoked, in order, <em>after</em> any command line argument or <code>_default</code> tracks.</p>
+
+<p>Pushes <code>Track</code> names into the <code>_after</code> array instance property. Generated names take the form <code>'MTD_AFTER_N'</code>.</p>
+
+<ul>
+<li>Chainable: <em>this method returns the instance.</em>
+</li>
+</ul>
+
+<h5>
+<a id="example-4" class="anchor" href="#example-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h5>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">after</span>(<span class="pl-s"><span class="pl-pds">'</span>last<span class="pl-pds">'</span></span>) <span class="pl-c">// assumes a 'last' Track exists, or will exist</span>
+.<span class="pl-en">after</span>(<span class="pl-k">function</span> (<span class="pl-smi">alpha</span>, <span class="pl-smi">beta</span>) {
+  <span class="pl-c">// create a new Track called 'MTD_AFTER_0'</span>
+})</pre></div>
+
+<h4>
+<a id="mtdprototypedispatch" class="anchor" href="#mtdprototypedispatch" aria-hidden="true"><span class="octicon octicon-link"></span></a>MTD.prototype.dispatch</h4>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">dispatch</span>(track <span class="pl-k">::</span> <span class="pl-c1">String</span>)</pre></div>
+
+<p>This method manages just-in-time dependency injection, and invocation of individual <code>Track</code> objects.</p>
+
+<p>It can be used to invoke a <code>Track</code> manually.</p>
+
+<h5>
+<a id="example-5" class="anchor" href="#example-5" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h5>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">dispatch</span>(<span class="pl-s"><span class="pl-pds">'</span>yo<span class="pl-pds">'</span></span>) <span class="pl-c">// manually invokes the 'yo' Track</span></pre></div>
+
+<h4>
+<a id="mtdprototyperadio" class="anchor" href="#mtdprototyperadio" aria-hidden="true"><span class="octicon octicon-link"></span></a>MTD.prototype.radio</h4>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">radio</span>(key <span class="pl-k">::</span> <span class="pl-c1">String</span>, value <span class="pl-k">::</span> Any, protect <span class="pl-k">::</span> <span class="pl-c1">Boolean</span>)</pre></div>
+
+<p>This is a getter/setter method for ease-of-use interaction with the <code>_radio</code> instance property. Its functionality is twofold:</p>
+
+<ul>
+<li><p>If <em>only</em> a <code>key</code> is provided, this method acts as a getter, returning the value associated with the given string.</p></li>
+<li>
+<p>If a <code>key</code> and a <code>value</code> are provided, this method acts as a setter, associating the given value with the given key, and returning the value.</p>
+
+<ul>
+<li>If <code>protect</code> is provided as a truthy value, <code>value</code> will <em>only</em> be associated with <code>key</code> if the given <code>key</code> does not already have an associated value.</li>
+</ul>
+</li>
+</ul>
+
+<p>This is useful for providing values or instances of objects that multiple tracks may wish to share.</p>
+
+<h5>
+<a id="example-6" class="anchor" href="#example-6" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h5>
+
+<p>In this example, we have two <code>tracks</code> where we know we will want an instance of <code>MySharedObject</code>. We can set up a <code>before</code> track, that checks if our command line application has been passed a <code>key</code> option. With that information, and a uniform designation of the <code>key</code> option, we can set up our tracks so that if multiple <code>key</code> dependents are invoked we already have a shared object, and don't need to construct additional instances.</p>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">before</span>(<span class="pl-k">function</span> () {
+  <span class="pl-k">var</span> key <span class="pl-k">=</span> <span class="pl-v">this</span>.<span class="pl-c1">options</span>.<span class="pl-smi">key</span>;
+  <span class="pl-k">if</span> (key) <span class="pl-v">this</span>.<span class="pl-en">radio</span>(<span class="pl-s"><span class="pl-pds">'</span>instance<span class="pl-pds">'</span></span>, <span class="pl-k">new</span> <span class="pl-en">MySharedObject</span>(key));
+})
+.<span class="pl-en">track</span>(<span class="pl-s"><span class="pl-pds">'</span>foo<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">key</span>, <span class="pl-smi">alpha</span>) {
+  <span class="pl-v">this</span>.<span class="pl-en">radio</span>(<span class="pl-s"><span class="pl-pds">'</span>instance<span class="pl-pds">'</span></span>).<span class="pl-en">doSomething</span>(alpha);
+})
+.<span class="pl-en">track</span>(<span class="pl-s"><span class="pl-pds">'</span>bar<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">key</span>, <span class="pl-smi">beta</span>) {
+  <span class="pl-v">this</span>.<span class="pl-en">radio</span>(<span class="pl-s"><span class="pl-pds">'</span>instance<span class="pl-pds">'</span></span>).<span class="pl-en">doSomethingElse</span>(beta);
+})</pre></div>
+
+<h4>
+<a id="mtdprototypeembark" class="anchor" href="#mtdprototypeembark" aria-hidden="true"><span class="octicon octicon-link"></span></a>MTD.prototype.embark</h4>
+
+<div class="highlight highlight-source-js"><pre>.<span class="pl-en">embark</span>()</pre></div>
+
+<p>This is the runner method, which handles dispatching <code>tracks</code> found in <code>_before</code>, <code>argv</code> or <code>_default</code>, and <code>_after</code>. It should always be called last. If you forget to include this, your application likely won't do anything.</p>
+
+<p><a name="context"></a></p>
+
+<h3>
+<a id="track-context" class="anchor" href="#track-context" aria-hidden="true"><span class="octicon octicon-link"></span></a>Track context</h3>
+
+<p>When invoked, <code>tracks</code> have their contextual <code>this</code> set to the controlling instance of <code>MTD</code>.</p>
+
+<p>This allows for ease of access to non-dependent command line options found in the <code>.options</code> property, the <code>.radio</code> method, and any other instance properties or prototype methods your <code>Track</code> might want to use.</p>
+
+<p>As such, <code>Track</code> <em>blocks</em> should not be object methods, or a function where the contextual <code>this</code> would need to be bound elsewhere in order for the function to operate properly.</p>
+
+<p><a name="parsing"></a></p>
+
+<h3>
+<a id="parsed-dependencies" class="anchor" href="#parsed-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parsed dependencies</h3>
+
+<p>To omit <code>Track</code> dependency lists, and rely on parsing function arguments, functions should conform to ES5 style arguments. No fancy ES6 allowed.</p>
+
+<p><a name="extras"></a></p>
+
+<h2>
+<a id="extras" class="anchor" href="#extras" aria-hidden="true"><span class="octicon octicon-link"></span></a>Extras</h2>
+
+<ul>
+<li>
+<a href="https://github.com/Okahyphen/mtd-help"><code>mtd-help</code></a> - A helpful <code>Track</code>.</li>
+</ul>
+
+<p><a name="license"></a></p>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>MTD is MIT!</p>
+
+<p>Read it <a href="https://github.com/Okahyphen/mtd/blob/master/LICENSE">here</a>.</p>
+
+<hr>
+
+<p>Enjoy!</p>
+
+<p><a href="http://oka.io/">Oka.io</a> | <a href="https://twitter.com/Okahyphen">@Okahyphen</a></p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/Okahyphen/mtd">mtd</a> is maintained by <a href="https://github.com/Okahyphen">Okahyphen</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
