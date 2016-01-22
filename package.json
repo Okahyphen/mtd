@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/Okahyphen/mtd#readme",
   "dependencies": {
-    "minimist": "^1.2.0"
+    "minimist": "^1.2.0",
+    "mtd-help": "^0.1.1"
   }
 }
