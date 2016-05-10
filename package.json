@@ -6,7 +6,7 @@
     "argv",
     "cli"
   ],
-  "main": "mtd.js",
+  "main": "lib/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,7 +21,6 @@
   },
   "homepage": "https://github.com/Okahyphen/mtd#readme",
   "dependencies": {
-    "minimist": "^1.2.0",
-    "mtd-help": "^0.1.1"
+    "minimist": "^1.2.0"
   }
 }

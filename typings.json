@@ -1,0 +1,8 @@
+{
+  "ambientDependencies": {
+    "node": "registry:dt/node#4.0.0+20160509082809"
+  },
+  "dependencies": {
+    "minimist": "registry:npm/minimist#1.0.0+20160229232932"
+  }
+}
