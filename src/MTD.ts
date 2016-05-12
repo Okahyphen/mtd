@@ -4,8 +4,8 @@ import Track from './Track';
 module.exports = class MTD {
     public argv: minimist.ParsedArgs;
     public settings: Settings;
-    public tracks: Object;
-    public defaults: Object;
+    public tracks: GenericObject;
+    public defaults: GenericObject;
 
     constructor (options?: Option[], args?: string[]) {
         if (!args || args === process.argv) {

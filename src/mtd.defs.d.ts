@@ -1,3 +1,7 @@
+interface GenericObject extends Object {
+    [index: string]: any;
+}
+
 interface Settings extends Object {
     [index: string]: any;
 
