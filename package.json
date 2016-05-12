@@ -22,5 +22,8 @@
   "homepage": "https://github.com/Okahyphen/mtd#readme",
   "dependencies": {
     "minimist": "^1.2.0"
-  }
+  },
+  "files": [
+    "lib/"
+  ]
 }

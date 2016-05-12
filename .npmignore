@@ -1,7 +1,0 @@
-examples/
-src/
-test/
-
-tsconfig.json
-tslint.json
-typings.json
