@@ -3,9 +3,12 @@ import Track from './Track';
 
 module.exports = class MTD {
     public argv: minimist.ParsedArgs;
+    public defaults: GenericObject;
     public settings: Settings;
     public tracks: GenericObject;
-    public defaults: GenericObject;
+
+    private _dispatched: number;
+    private _default: string;
 
     constructor (options?: Option[], args?: string[]) {
         if (!args || args === process.argv) {
@@ -19,12 +22,13 @@ module.exports = class MTD {
         this.argv = minimist(args, opts);
 
         this.settings = {
-            multi: false,
-            reruns: false,
-            results: false
+            multi: true,
+            reruns: false
         };
 
         this.tracks = {};
+
+        this._dispatched = 0;
     }
 
     public configure (config: Settings): this {
@@ -47,16 +51,37 @@ module.exports = class MTD {
         return this;
     }
 
-    public embark (): void {
-        this.argv._.forEach((handle: string): void => {
-            if (this.tracks.hasOwnProperty(handle)) {
-                const track: Track = this.tracks[handle];
+    public default (handle: string, options?: Option[], block?: Block): this {
+        if (options || block) {
+            this.track(handle, options, block);
+        }
 
-                if (!track.departed || this.settings.reruns) {
-                    this.dispatch(track);
-                }
-            }
+        this._default = handle;
+
+        return this;
+    }
+
+    public embark (): void {
+        const lines: string[] = this.argv._.filter((handle: string): boolean => {
+            return this.tracks.hasOwnProperty(handle);
         });
+
+        const length: number = lines.length;
+
+        if (length) {
+            if (this.settings.multi) {
+                for (let i: number = 0; i < length; i++) {
+                    this.dispatch(this.tracks[lines[i]]);
+                }
+            } else {
+                this.dispatch(this.tracks[lines[0]]);
+            }
+        }
+
+        if (!this._dispatched && (this._default !== undefined)
+            && this.tracks.hasOwnProperty(this._default)) {
+            this.dispatch(this.tracks[this._default]);
+        }
     }
 
     private dispatch (track: Track): void {
@@ -68,6 +93,7 @@ module.exports = class MTD {
 
         track.departed = true;
         track.block.apply(this, track.cache);
+        this._dispatched++;
     }
 
     private argumentFromOption (option: Option, track: Track): any {

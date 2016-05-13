@@ -12,20 +12,15 @@ HMS.prototype.pretty = function () {
     this.hours, this.minutes, this.seconds);
 };
 
-console.time('run');
-
 new station([
   { $: 'date', _: 'Jan 1, 1970'}
 ])
 
-.track('until', [ { $: 'date', _: "Jan 1, 2033" } ], function (date) {
+.default('until', [ { $: 'date', _: "Jan 1, 2033" } ], function (date) {
   const seconds = ~~((Date.parse(date) - Date.now()) / 1000);
 
   console.log('Time until %s', date);
   new HMS(seconds).pretty();
-
-
-  console.log('---\n', this);
 })
 
 .track('since', [ { $: 'date' } ], function (date) {
@@ -36,5 +31,3 @@ new station([
 })
 
 .embark();
-
-console.timeEnd('run');

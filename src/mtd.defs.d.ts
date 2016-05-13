@@ -7,7 +7,6 @@ interface Settings extends Object {
 
     multi?: boolean;
     reruns?: boolean;
-    results?: boolean;
 }
 
 interface Option extends Object {
