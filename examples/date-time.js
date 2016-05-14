@@ -30,4 +30,8 @@ new station([
   new HMS(seconds).pretty();
 })
 
+.always('now', [], function () {
+  console.log('Time is %s.', new Date().toString());
+})
+
 .embark();

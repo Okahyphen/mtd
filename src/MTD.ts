@@ -9,6 +9,7 @@ module.exports = class MTD {
 
     private _dispatched: number;
     private _default: string;
+    private _always: string[];
 
     constructor (options?: Option[], args?: string[]) {
         if (!args || args === process.argv) {
@@ -28,6 +29,7 @@ module.exports = class MTD {
 
         this.tracks = {};
 
+        this._always = [];
         this._dispatched = 0;
     }
 
@@ -61,10 +63,19 @@ module.exports = class MTD {
         return this;
     }
 
+    public always (handle: string, options: Option[], block: Block): this {
+        this.track(handle, options, block);
+        this._always.push(handle);
+
+        return this;
+    }
+
     public embark (): void {
-        const lines: string[] = this.argv._.filter((handle: string): boolean => {
+        const hasTrack: any = (handle: string): boolean => {
             return this.tracks.hasOwnProperty(handle);
-        });
+        };
+
+        const lines: string[] = this.argv._.filter(hasTrack);
 
         const length: number = lines.length;
 
@@ -82,17 +93,33 @@ module.exports = class MTD {
             && this.tracks.hasOwnProperty(this._default)) {
             this.dispatch(this.tracks[this._default]);
         }
+
+        if (this._always.length) {
+            this._always.filter(hasTrack).forEach((handle: string): void => {
+                this.dispatch(this.tracks[handle]);
+            });
+        }
     }
 
     private dispatch (track: Track): void {
+        const hasDeparted: boolean = track.departed;
+
+        if (hasDeparted && !this.settings.reruns) {
+            return;
+        }
+
         if (!track.cache) {
             track.cache = track.options.map((option: Option): any => {
                 return this.argumentFromOption(option, track);
             });
         }
 
-        track.departed = true;
+        if (!hasDeparted) {
+            track.departed = true;
+        }
+
         track.block.apply(this, track.cache);
+
         this._dispatched++;
     }
 
