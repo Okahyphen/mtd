@@ -6,6 +6,7 @@ interface Settings extends Object {
     [index: string]: any;
 
     multi?: boolean;
+    reportErros?: boolean;
     reruns?: boolean;
 }
 

@@ -8,6 +8,7 @@ module.exports = class MTD {
     public tracks: GenericObject;
 
     private _dispatched: number;
+    private _errors: number;
     private _default: string;
     private _always: string[];
 
@@ -24,6 +25,7 @@ module.exports = class MTD {
 
         this.settings = {
             multi: true,
+            reportErrors: true,
             reruns: false
         };
 
@@ -31,6 +33,7 @@ module.exports = class MTD {
 
         this._always = [];
         this._dispatched = 0;
+        this._errors = 0;
     }
 
     public configure (config: Settings): this {
@@ -89,7 +92,8 @@ module.exports = class MTD {
             }
         }
 
-        if (!this._dispatched && (this._default !== undefined)
+        if (!this._dispatched && (!this._errors)
+            && (this._default !== undefined)
             && this.tracks.hasOwnProperty(this._default)) {
             this.dispatch(this.tracks[this._default]);
         }
@@ -114,13 +118,18 @@ module.exports = class MTD {
             });
         }
 
-        if (!hasDeparted) {
-            track.departed = true;
+        if (track.missingOptions.length) {
+            this.reportErrors(track);
+            this._errors++;
+        } else {
+            if (!hasDeparted) {
+                track.departed = true;
+            }
+
+            track.block.apply(this, track.cache);
+
+            this._dispatched++;
         }
-
-        track.block.apply(this, track.cache);
-
-        this._dispatched++;
     }
 
     private argumentFromOption (option: Option, track: Track): any {
@@ -148,7 +157,7 @@ module.exports = class MTD {
             return;
         }
 
-        throw new Error('Track is missing an option...');
+        track.missingOptions.push(option);
     }
 
     private remapOptions (options: Option[] = []): minimist.Options {
@@ -177,5 +186,13 @@ module.exports = class MTD {
         });
 
         return result;
+    }
+
+    private reportErrors (track: Track): void {
+        console.warn(`Track [ ${track.handle} ] missing options:`);
+
+        track.missingOptions.forEach((opt: Option): void => {
+            console.warn('\t%s', opt.$);
+        });
     }
 };
