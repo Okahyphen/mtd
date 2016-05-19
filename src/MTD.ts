@@ -4,6 +4,7 @@ import Track from './Track';
 module.exports = class MTD {
     public argv: minimist.ParsedArgs;
     public defaults: GenericObject;
+    public aliases: GenericObject;
     public settings: Settings;
     public tracks: GenericObject;
 
@@ -19,6 +20,7 @@ module.exports = class MTD {
 
         const opts: minimist.Options = this.remapOptions(options);
         this.defaults = opts.default;
+        this.aliases = opts.alias;
         delete opts.default;
 
         this.argv = minimist(args, opts);
@@ -34,6 +36,14 @@ module.exports = class MTD {
         this._always = [];
         this._dispatched = 0;
         this._errors = 0;
+    }
+
+    public static dashPrefix (arg: string): string {
+        switch (arg.length) {
+            case 0: return '';
+            case 1: return `-${arg}`;
+            default: return `--${arg}`;
+        }
     }
 
     public configure (config: Settings): this {
@@ -103,6 +113,18 @@ module.exports = class MTD {
                 this.dispatch(this.tracks[handle]);
             });
         }
+    }
+
+    public getAlias (opt: Option): string {
+        if (opt.hasOwnProperty('alias')) {
+            return opt.alias;
+        }
+
+        if (this.aliases.hasOwnProperty(opt.$)) {
+            return this.aliases[opt.$];
+        }
+
+        return '';
     }
 
     private dispatch (track: Track): void {
@@ -192,7 +214,14 @@ module.exports = class MTD {
         console.warn(`Track [ ${track.handle} ] missing options:`);
 
         track.missingOptions.forEach((opt: Option): void => {
-            console.warn('\t%s', opt.$);
+            const name: string = MTD.dashPrefix(opt.$);
+            let alias: string = this.getAlias(opt);
+
+            if (alias) {
+                alias = `(${MTD.dashPrefix(alias)})`;
+            }
+
+            console.warn(`\t${name} ${alias}`);
         });
     }
 };
