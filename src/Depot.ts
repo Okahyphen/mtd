@@ -1,7 +1,7 @@
 import * as minimist from 'minimist';
 import Track from './Track';
 
-module.exports = class MTD {
+module.exports = class Depot {
     public argv: minimist.ParsedArgs;
     public aliases: GenericObject;
     public defaults: GenericObject;
@@ -224,12 +224,12 @@ module.exports = class MTD {
         console.warn(`Track [ ${track.handle} ] missing options:`);
 
         track.missingOptions.forEach((opt: Option): void => {
-            const name: string = MTD.dashPrefix(opt.$);
+            const name: string = Depot.dashPrefix(opt.$);
             const info: string = opt.info || this.infoStrings[opt.$] || '';
             let alias: string = this.getAlias(opt);
 
             if (alias) {
-                alias = `(${MTD.dashPrefix(alias)})`;
+                alias = `(${Depot.dashPrefix(alias)})`;
             }
 
             console.warn(`\t${name} ${alias}    ${info}`);

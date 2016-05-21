@@ -1,37 +1,41 @@
 // date-time.js
-const station = require('../lib/MTD');
+'use strict';
 
-function HMS (seconds) {
-  this.hours = ~~(seconds / 3600);
-  this.minutes = ~~((seconds % 3600) / 60);
-  this.seconds = ~~(seconds % 60);
+const Depot = require('../lib/MTD');
+
+class HMS {
+  constructor (seconds) {
+    this.hours = ~~(seconds / 3600);
+    this.minutes = ~~((seconds % 3600) / 60);
+    this.seconds = ~~(seconds % 60);
+  }
+
+  prettyPrint () {
+    console.log('Hour(s):\t%s\nMinute(s):\t%s\nSecond(s):\t%s',
+      this.hours, this.minutes, this.seconds);
+  }
 }
 
-HMS.prototype.pretty = function () {
-  console.log('Hour(s):\t%s\nMinute(s):\t%s\nSecond(s):\t%s',
-    this.hours, this.minutes, this.seconds);
-};
-
-new station([
-  { $: 'date', _: 'Jan 1, 1970'}
+new Depot([
+  { $: 'date', alias: 'd', info: 'A valid date string.' }
 ])
 
-.default('until', [ { $: 'date', _: "Jan 1, 2033" } ], function (date) {
+.default('until', [ { $: 'date' } ], (date, foo) => {
   const seconds = ~~((Date.parse(date) - Date.now()) / 1000);
 
-  console.log('Time until %s', date);
-  new HMS(seconds).pretty();
+  console.log('Time until %s:', date);
+  new HMS(seconds).prettyPrint();
 })
 
-.track('since', [ { $: 'date' } ], function (date) {
+.track('since', [ { $: 'date' } ], (date) => {
   const seconds = ~~((Date.now() - Date.parse(date)) / 1000);
 
-  console.log('Time since %s', date);
-  new HMS(seconds).pretty();
+  console.log('Time since %s:', date);
+  new HMS(seconds).prettyPrint();
 })
 
-.always('now', [], function () {
-  console.log('Time is %s.', new Date().toString());
+.always('now', [], () => {
+  console.log('Date and time is %s.', new Date().toString());
 })
 
 .embark();
