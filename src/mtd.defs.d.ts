@@ -18,7 +18,6 @@ interface Option extends Object {
 
     alias?: string;
     info?: string;
-    optional?: boolean;
     pass?: boolean;
     type?: string;
 }

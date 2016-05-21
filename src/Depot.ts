@@ -178,7 +178,7 @@ module.exports = class Depot {
             return this.defaults[option.$];
         }
 
-        if (option.optional) {
+        if (option.pass) {
             return;
         }
 
