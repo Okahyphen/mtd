@@ -1,7 +1,7 @@
 // date-time.js
 'use strict';
 
-const Depot = require('../lib/MTD');
+const Depot = require('../lib/Depot');
 
 class HMS {
   constructor (seconds) {
