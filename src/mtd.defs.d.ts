@@ -18,8 +18,11 @@ interface Option extends Object {
 
     alias?: string;
     info?: string;
-    pass?: boolean;
-    type?: string;
+}
+
+interface TypedOption extends Option {
+    bool?: boolean;
+    string?: boolean;
 }
 
 interface Parsed {

@@ -14,7 +14,7 @@ module.exports = class Depot {
     private _default: string;
     private _always: string[];
 
-    constructor (options?: Option[], args?: string[]) {
+    constructor (options?: TypedOption[], args?: string[]) {
         if (!args || args === process.argv) {
             args = process.argv.slice(2);
         }
@@ -178,15 +178,11 @@ module.exports = class Depot {
             return this.defaults[option.$];
         }
 
-        if (option.pass) {
-            return;
-        }
-
         track.missingOptions.push(option);
     }
 
     private remapOptions (
-        options: Option[] = [],
+        options: TypedOption[] = [],
         infoStrings: GenericObject
     ): minimist.Options {
         const result: minimist.Options = {
@@ -196,7 +192,7 @@ module.exports = class Depot {
             string: []
         };
 
-        options.forEach((option: Option): void => {
+        options.forEach((option: TypedOption): void => {
             const name: string = option.$;
 
             if (option.hasOwnProperty('alias')) {
@@ -207,9 +203,10 @@ module.exports = class Depot {
                 result.default[name] = option._;
             }
 
-            if (option.hasOwnProperty('type') &&
-                (option.type === 'boolean' || option.type === 'string')) {
-                (result as any)[option.type].push(name);
+            if (option.bool) {
+                (result.boolean as string[]).push(name);
+            } else if (option.string) {
+                (result.string as string[]).push(name);
             }
 
             if (option.hasOwnProperty('info')) {
