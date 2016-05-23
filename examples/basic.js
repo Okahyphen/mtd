@@ -1,5 +1,4 @@
 // basic.js
-
 'use strict';
 
 const Depot = require('../lib/Depot');

@@ -22,6 +22,8 @@ $ npm install mtd
 
 ## Learn By Example
 
+### Basic
+
 Below is a basic example of a command line application with a single track, `echo`, which in turn has a single, required command line option, `input` or `i`.
 
 ```javascript
@@ -41,7 +43,7 @@ new Depot()
 .embark();
 ```
 
-From the root of this project, we can test out our script as `$ node examples/basic.js echo`.
+We can test out our example script as `$ node basic.js echo`.
 
 This however results in an error:
 
@@ -52,13 +54,67 @@ Track [ echo ] missing options:
 
 MTD has spotted that our `echo` track is missing an option, and lets us know.
 
-If we try again, `$ node examples/basic.js echo --input Hello!`, we'll get the appropriate response:
+If we try again, `$ node basic.js echo --input Hello!`, we'll get the appropriate response:
 
 ```
 Hello!
 ```
 
-To allow for _optional_ options, you must specify a default, using the property `_`. If we changed the second argument of `track` to `[ { $: 'input', _: 'Yo.' alias: 'i', info: 'Some input.' } ],`, and ran `$ node examples/basic.js echo` again, we'd see no issues, and `Yo.` would be printed to our terminal.
+To allow for _optional_ options, you must specify a default, using the property `_`. If we changed the second argument of `track` to
+
+```javascript
+[ { $: 'input', _: 'Yo.' alias: 'i', info: 'Some input.' } ]
+```
+
+and ran `$ node basic.js echo` again, we'd see no issues, and `Yo.` would be printed to our terminal display.
+
+### Multi
+
+Below is an example showcasing multiple tracks, `foo` and `bar`, both of which take no arguments.
+
+```javascript
+// multi.js
+'use strict';
+
+const Depot = require('mtd');
+
+new Depot()
+
+.track('foo', [], () => {
+  console.log('foo track');
+})
+
+.track('bar', [], () => {
+  console.log('bar track');
+})
+
+.embark();
+
+```
+
+By default, MTD allows for multiple tracks to be executed. The execution of these tracks is synchronous, and happens in the same order that they are specified at the command line.
+
+If we ran `$ node multi.js foo bar` we would see the following in our terminal:
+
+```
+foo track
+bar track
+```
+
+Conversely, `$ node multi.js bar foo` would result in:
+
+```
+bar track
+foo track
+```
+
+By default, MTD restricts tracks to a single execution. `$ node multi.js foo foo` would display:
+
+```
+foo track
+```
+
+See the `configure` method below for how to change the `multi` and `reruns` settings.
 
 ## Documentation
 
@@ -240,7 +296,7 @@ Read it [here][license].
 
 Enjoy!
 
-[Oka.io](http://oka.io/) | [@Okahyphen](https://twitter.com/Okahyphen)
+[Oka.io](http://oka.io/)
 
 [npm-url]: https://www.npmjs.com/package/mtd
 [npm-image]: http://img.shields.io/npm/v/mtd.svg
