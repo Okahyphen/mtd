@@ -218,7 +218,7 @@ module.exports = class Depot {
     }
 
     private reportErrors (track: Track): void {
-        console.warn(`Track [ ${track.handle} ] missing options:`);
+        console.warn(`Missing options for [ ${track.handle} ]:`);
 
         track.missingOptions.forEach((opt: Option): void => {
             const name: string = Depot.dashPrefix(opt.$);

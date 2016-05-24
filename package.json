@@ -6,9 +6,9 @@
     "argv",
     "cli"
   ],
-  "main": "lib/main.js",
+  "main": "lib/Depot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepublish": "tsc"
   },
   "repository": {
     "type": "git",
@@ -25,5 +25,8 @@
   },
   "files": [
     "lib/"
-  ]
+  ],
+  "devDependencies": {
+    "typings": "^1.0.4"
+  }
 }
