@@ -10,7 +10,7 @@
     "outDir": "lib"
   },
   "files": [
-    "typings/main.d.ts",
+    "typings/index.d.ts",
     "src/mtd.defs.d.ts",
     "src/Depot.ts",
     "src/Track.ts"
